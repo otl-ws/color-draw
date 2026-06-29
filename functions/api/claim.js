@@ -1,5 +1,4 @@
 // POST /api/claim  ->  { code, color }   (or 409 if none left)
-// The server picks the color so the draw is fair and can't be tampered with.
 const COLORS = [
   { name: "Red",    hex: "#EF4444" },
   { name: "Blue",   hex: "#3B82F6" },
@@ -12,7 +11,7 @@ const COLORS = [
   { name: "Black",  hex: "#1A1A1F" },
   { name: "White",  hex: "#FFFFFF" },
 ];
-const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I
+const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 export async function onRequestPost(context) {
   const { env } = context;

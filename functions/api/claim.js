@@ -4,12 +4,13 @@ const COLORS = [
   { name: "Blue",   hex: "#3B82F6" },
   { name: "Pink",   hex: "#EC4899" },
   { name: "Orange", hex: "#FB923C" },
-  { name: "Yellow", hex: "#FACC15" },
+  { name: "Yellow", hex: "#fffc4f" },
   { name: "Green",  hex: "#22C55E" },
   { name: "Purple", hex: "#A855F7" },
   { name: "Brown",  hex: "#6F4E37" },
   { name: "Black",  hex: "#1A1A1F" },
   { name: "White",  hex: "#FFFFFF" },
+  { name: "Gold",  hex: "#c2c05d" },
 ];
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 

@@ -8,6 +8,9 @@ const COLORS = [
   { name: "Yellow", hex: "#FACC15" },
   { name: "Green",  hex: "#22C55E" },
   { name: "Purple", hex: "#A855F7" },
+  { name: "Brown",  hex: "#6F4E37" },
+  { name: "Black",  hex: "#1A1A1F" },
+  { name: "White",  hex: "#FFFFFF" },
 ];
 
 export async function onRequestGet(context) {

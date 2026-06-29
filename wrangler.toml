@@ -2,9 +2,6 @@ name = "color-draw"
 compatibility_date = "2025-01-01"
 pages_build_output_dir = "."
 
-[vars]
-RESET_KEY = "reset-now"
-
 [[kv_namespaces]]
 binding = "COLORS_KV"
 id = "fde75886eb3549d4a715fa0f0390a1c9"

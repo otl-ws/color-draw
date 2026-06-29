@@ -1,5 +1,4 @@
 // GET /api/state  ->  { colors: [...], claimed: ["Red", ...] }
-// COLORS lives here so the server is the single source of truth.
 const COLORS = [
   { name: "Red",    hex: "#EF4444" },
   { name: "Blue",   hex: "#3B82F6" },

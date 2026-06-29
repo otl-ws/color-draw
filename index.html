@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Draw — Off Thought Labs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E0E14;
+    --panel:#16161F;
+    --panel-2:#1D1D29;
+    --text:#ECEAE2;
+    --muted:#8C8C9C;
+    --line:rgba(255,255,255,.09);
+    --line-strong:rgba(255,255,255,.16);
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'Space Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 50% -10%, rgba(80,80,140,.18), transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:clamp(20px,4vw,48px) 18px 64px;
+  }
+  .stage{width:100%;max-width:440px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,9vw,46px);line-height:.98;letter-spacing:-.02em;margin:0 0 8px}
+  .sub{color:var(--muted);font-size:14.5px;margin:0 0 22px;line-height:1.5}
+
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:22px}
+  .tab{appearance:none;border:0;cursor:pointer;font-family:var(--display);font-weight:600;font-size:14px;color:var(--muted);background:transparent;padding:10px 8px;border-radius:9px;transition:.18s}
+  .tab[aria-selected="true"]{background:var(--panel-2);color:var(--text)}
+  .tab:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+
+  .view{display:none}
+  .view.active{display:block;animation:fade .3s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .legend{display:flex;flex-wrap:wrap;gap:7px 10px;margin:0 0 22px;font-size:12.5px}
+  .chip{display:inline-flex;align-items:center;gap:7px;color:var(--muted)}
+  .dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset}
+  .chip.gone{opacity:.32}
+  .chip.gone .name{text-decoration:line-through}
+
+  .wheelwrap{position:relative;width:100%;max-width:320px;margin:0 auto 26px;aspect-ratio:1}
+  .pointer{position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:22px solid var(--text);z-index:3;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+  .hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:var(--ink);border:1px solid var(--line-strong);z-index:2;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted)}
+  #wheel{width:100%;height:100%;transition:none;will-change:transform}
+  #wheel svg{display:block;width:100%;height:100%;filter:drop-shadow(0 16px 40px rgba(0,0,0,.45))}
+  .wheel-empty{display:flex;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--muted);font-family:var(--display);border:1px dashed var(--line-strong);border-radius:50%;padding:24px}
+
+  .btn{appearance:none;border:0;cursor:pointer;width:100%;font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink);background:var(--text);padding:15px;border-radius:12px;transition:transform .12s,opacity .2s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:.4;cursor:default;transform:none}
+  .btn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+  .ticket{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transform:rotate(-.6deg);animation:pop .45s cubic-bezier(.2,.9,.25,1.1) both}
+  @keyframes pop{from{opacity:0;transform:rotate(-.6deg) scale(.94)}to{opacity:1;transform:rotate(-.6deg) scale(1)}}
+  .ticket .band{height:74px;display:flex;align-items:flex-end;padding:12px 16px}
+  .ticket .band b{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;background:rgba(0,0,0,.35);color:#fff;padding:4px 8px;border-radius:6px}
+  .ticket .perf{border-top:2px dashed var(--line-strong);position:relative}
+  .ticket .perf::before,.ticket .perf::after{content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;background:var(--ink)}
+  .ticket .perf::before{left:-9px}
+  .ticket .perf::after{right:-9px}
+  .ticket .body{padding:18px 18px 20px}
+  .ticket .label{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+  .ticket .colorname{font-family:var(--display);font-weight:700;font-size:26px;margin:0 0 16px;letter-spacing:-.01em}
+  .codebox{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px}
+  .codebox .code{font-family:var(--mono);font-weight:700;font-size:28px;letter-spacing:.14em}
+  .copybtn{appearance:none;border:1px solid var(--line-strong);background:transparent;color:var(--text);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:8px 11px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .copybtn:hover{background:var(--panel-2)}
+  .keep{font-size:12.5px;color:var(--muted);margin:14px 2px 0;line-height:1.5}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 9px}
+  .field input{width:100%;background:var(--panel);border:1px solid var(--line-strong);color:var(--text);font-family:var(--mono);font-weight:700;font-size:24px;letter-spacing:.16em;text-transform:uppercase;padding:14px 16px;border-radius:12px;text-align:center}
+  .field input:focus{outline:2px solid var(--text);outline-offset:1px}
+  .found{margin-top:22px}
+  .found .colorname{font-family:var(--display);font-weight:700;font-size:30px;margin:14px 0 0;display:flex;align-items:center;gap:12px}
+  .found .swatch{width:34px;height:34px;border-radius:8px;box-shadow:0 0 0 1px rgba(255,255,255,.14) inset}
+  .msg{margin-top:18px;font-size:14px;color:var(--muted);line-height:1.5}
+  .msg.warn{color:#FF8FA3}
+
+  .hidden{display:none!important}
+  footer{margin-top:40px;text-align:center}
+  .reset{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);background:transparent;border:0;cursor:pointer;opacity:.55;text-transform:uppercase}
+  .reset:hover{opacity:1;text-decoration:underline}
+
+  @media (prefers-reduced-motion: reduce){
+    #wheel{transition:none!important}
+    .ticket,.view{animation:none!important}
+  }
+</style>
+</head>
+<body>
+<main class="stage">
+  <p class="eyebrow">Off Thought Labs</p>
+  <h1>Color Draw</h1>
+  <p class="sub">Spin once to claim a color. You'll get a code — save it, and you can look up your color any time.</p>
+
+  <div class="tabs" role="tablist" aria-label="Mode">
+    <button class="tab" id="tab-spin" role="tab" aria-selected="true" aria-controls="view-spin">Spin</button>
+    <button class="tab" id="tab-find" role="tab" aria-selected="false" aria-controls="view-find">Find my color</button>
+  </div>
+
+  <section class="view active" id="view-spin" role="tabpanel" aria-labelledby="tab-spin">
+    <div class="legend" id="legend" aria-label="The seven colors"></div>
+    <div id="spinArea">
+      <div class="wheelwrap">
+        <div class="pointer"></div>
+        <div id="wheel"></div>
+        <div class="hub">SPIN</div>
+      </div>
+      <button class="btn" id="spinBtn">Spin the wheel</button>
+      <p class="msg" id="spinMsg"></p>
+    </div>
+    <div id="result"></div>
+  </section>
+
+  <section class="view" id="view-find" role="tabpanel" aria-labelledby="tab-find" hidden>
+    <div class="field">
+      <label for="codeInput">Enter your code</label>
+      <input id="codeInput" maxlength="4" autocomplete="off" spellcheck="false" placeholder="––––" inputmode="text" aria-describedby="findMsg">
+    </div>
+    <button class="btn" id="findBtn">Find color</button>
+    <div id="found"></div>
+    <p class="msg" id="findMsg"></p>
+  </section>
+
+  <footer>
+    <button class="reset" id="resetBtn">Reset all draws · host only</button>
+  </footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  let COLORS = [];                    // filled from /api/state
+  const byName = n => COLORS.find(c => c.name === n);
+  const MINE = "oft-colordraw-mine";  // remembers this browser's own draw
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const el = id => document.getElementById(id);
+  const legend = el("legend"), wheel = el("wheel");
+  const spinBtn = el("spinBtn"), spinMsg = el("spinMsg");
+  const spinArea = el("spinArea"), result = el("result");
+
+  // ---- API helper --------------------------------------------------------
+  async function api(path, opts){
+    try{
+      const r = await fetch(path, opts);
+      const data = await r.json().catch(()=>({}));
+      return { ok:r.ok, status:r.status, data };
+    }catch(e){
+      return { ok:false, status:0, data:{ error:"Network error — please try again." } };
+    }
+  }
+
+  // ---- Remember own draw (localStorage; fine on your own site) -----------
+  function saveMine(o){ try{ localStorage.setItem(MINE, JSON.stringify(o)); }catch(e){} }
+  function readMine(){ try{ return JSON.parse(localStorage.getItem(MINE)); }catch(e){ return null; } }
+  function clearMine(){ try{ localStorage.removeItem(MINE); }catch(e){} }
+
+  // ---- Geometry ----------------------------------------------------------
+  const SIZE=320, CX=160, CY=160, R=152;
+  function pt(angle){ const a=angle*Math.PI/180; return [ CX+R*Math.sin(a), CY-R*Math.cos(a) ]; }
+  function renderWheel(remaining){
+    if(remaining.length === 0){ wheel.innerHTML = '<div class="wheel-empty">Every color<br>has been claimed</div>'; return; }
+    const seg = 360/remaining.length;
+    let paths = "";
+    remaining.forEach((c,i)=>{
+      const a0=i*seg, a1=(i+1)*seg, [x0,y0]=pt(a0), [x1,y1]=pt(a1), large=seg>180?1:0;
+      paths += `<path d="M${CX} ${CY} L${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${c.hex}" stroke="#0E0E14" stroke-width="2"/>`;
+      const mid=(a0+a1)/2, lr=R*0.62, la=mid*Math.PI/180, lx=CX+lr*Math.sin(la), ly=CY-lr*Math.cos(la);
+      paths += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#0E0E14" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle" transform="rotate(${mid} ${lx.toFixed(1)} ${ly.toFixed(1)})">${c.name}</text>`;
+    });
+    wheel.innerHTML = `<svg viewBox="0 0 ${SIZE} ${SIZE}" role="img" aria-label="Wheel of ${remaining.length} remaining colors"><circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2"/>${paths}</svg>`;
+  }
+  function renderLegend(claimedNames){
+    legend.innerHTML = COLORS.map(c=>{
+      const gone = claimedNames.includes(c.name);
+      return `<span class="chip ${gone?'gone':''}"><span class="dot" style="background:${c.hex}"></span><span class="name">${c.name}</span></span>`;
+    }).join("");
+  }
+
+  // ---- Ticket ------------------------------------------------------------
+  function showTicket(color, code, alreadyHad){
+    const c = byName(color) || {hex:"#888",name:color};
+    spinArea.classList.add("hidden");
+    result.innerHTML = `
+      <div class="ticket">
+        <div class="band" style="background:${c.hex}"><b>Off Thought Labs</b></div>
+        <div class="perf"></div>
+        <div class="body">
+          <p class="label">${alreadyHad ? "Your color" : "You drew"}</p>
+          <h2 class="colorname">${c.name}</h2>
+          <div class="codebox"><span class="code">${code}</span><button class="copybtn" id="copyCode">Copy</button></div>
+          <p class="keep">Save this code — screenshot it or write it down. Use <b>Find my color</b> with the code to see your color again any time.</p>
+        </div>
+      </div>`;
+    const cp = el("copyCode");
+    if(cp) cp.addEventListener("click", ()=>{
+      navigator.clipboard?.writeText(code).then(()=>{ cp.textContent="Copied"; setTimeout(()=>cp.textContent="Copy",1500); }).catch(()=>{});
+    });
+  }
+
+  // ---- Spin --------------------------------------------------------------
+  let spinning = false;
+  async function doSpin(){
+    if(spinning) return;
+    spinning = true; spinBtn.disabled = true; spinMsg.textContent = "";
+
+    const state = await api("/api/state");
+    const claimedNames = state.ok ? (state.data.claimed||[]) : [];
+    const displayed = COLORS.filter(c=>!claimedNames.includes(c.name));
+    renderWheel(displayed);
+
+    const res = await api("/api/claim", { method:"POST" });
+    if(!res.ok){
+      spinMsg.textContent = res.data.error || "Couldn't draw — please try again.";
+      spinBtn.disabled = false; spinning = false; return;
+    }
+    const { code, color } = res.data;
+    let idx = displayed.findIndex(c=>c.name===color);
+    if(idx < 0) idx = 0;
+
+    const n = displayed.length || 1, seg = 360/n;
+    const center = (idx+0.5)*seg, jitter = (Math.random()*0.6 - 0.3)*seg;
+    const spins = reduceMotion ? 0 : 5;
+    const rot = 360*spins - center + jitter;
+    const reveal = ()=>{ saveMine({code, color}); showTicket(color, code, false); };
+
+    if(reduceMotion){
+      wheel.style.transform = `rotate(${rot}deg)`; setTimeout(reveal, 200);
+    }else{
+      wheel.style.transition = "transform 4.2s cubic-bezier(.16,.8,.18,1)";
+      void wheel.offsetWidth;
+      wheel.style.transform = `rotate(${rot}deg)`;
+      let done = false;
+      const fin = (e)=>{ if(e && e.propertyName!=="transform") return; if(done) return; done=true; reveal(); };
+      wheel.addEventListener("transitionend", fin, {once:true});
+      setTimeout(()=>fin(), 4600);
+    }
+  }
+
+  // ---- Find --------------------------------------------------------------
+  const codeInput = el("codeInput"), found = el("found"), findMsg = el("findMsg");
+  codeInput.addEventListener("input", ()=>{
+    codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+    findMsg.textContent=""; found.innerHTML="";
+  });
+  codeInput.addEventListener("keydown", e=>{ if(e.key==="Enter") doFind(); });
+  async function doFind(){
+    const code = codeInput.value.trim().toUpperCase();
+    found.innerHTML=""; findMsg.className="msg";
+    if(code.length < 4){ findMsg.textContent="Enter your full 4-character code."; return; }
+    const r = await api("/api/lookup?code="+encodeURIComponent(code));
+    if(!r.ok){ findMsg.className="msg warn"; findMsg.textContent = r.data.error || "No color found for that code."; return; }
+    const c = byName(r.data.color) || {hex:"#888",name:r.data.color};
+    found.innerHTML = `<div class="found"><p class="label" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0">Code ${code} →</p><div class="colorname"><span class="swatch" style="background:${c.hex}"></span>${c.name}</div></div>`;
+  }
+  el("findBtn").addEventListener("click", doFind);
+
+  // ---- Tabs --------------------------------------------------------------
+  const tabSpin=el("tab-spin"), tabFind=el("tab-find"), viewSpin=el("view-spin"), viewFind=el("view-find");
+  function selectTab(which){
+    const spin = which==="spin";
+    tabSpin.setAttribute("aria-selected", spin); tabFind.setAttribute("aria-selected", !spin);
+    viewSpin.classList.toggle("active", spin); viewFind.classList.toggle("active", !spin);
+    viewSpin.hidden = !spin; viewFind.hidden = spin;
+  }
+  tabSpin.addEventListener("click", ()=>selectTab("spin"));
+  tabFind.addEventListener("click", ()=>selectTab("find"));
+
+  // ---- Reset (host only) -------------------------------------------------
+  el("resetBtn").addEventListener("click", async ()=>{
+    const key = prompt("Enter the reset key to clear ALL draws for everyone:");
+    if(key === null) return;
+    const r = await api("/api/reset?key="+encodeURIComponent(key), { method:"POST" });
+    if(!r.ok){ alert(r.data.error || "Reset failed."); return; }
+    clearMine(); location.reload();
+  });
+
+  // ---- Init --------------------------------------------------------------
+  spinBtn.addEventListener("click", doSpin);
+  (async function init(){
+    const r = await api("/api/state");
+    if(!r.ok){ spinMsg.textContent = "Couldn't reach the server. Check that the KV binding is set up."; return; }
+    COLORS = r.data.colors || [];
+    const claimedNames = r.data.claimed || [];
+    renderLegend(claimedNames);
+
+    const mine = readMine();
+    if(mine && mine.code){
+      const look = await api("/api/lookup?code="+encodeURIComponent(mine.code));
+      if(look.ok){
+        renderWheel(COLORS.filter(c=>!claimedNames.includes(c.name)));
+        showTicket(look.data.color, mine.code, true);
+        return;
+      }
+      clearMine(); // server was reset — let them draw again
+    }
+    const remaining = COLORS.filter(c=>!claimedNames.includes(c.name));
+    renderWheel(remaining);
+    if(remaining.length === 0){ spinBtn.disabled = true; spinMsg.textContent = "Every color has been claimed."; }
+  })();
+})();
+</script>
+</body>
+</html>

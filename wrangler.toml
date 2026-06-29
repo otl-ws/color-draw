@@ -1,0 +1,18 @@
+# Optional — only needed if you deploy with the Wrangler CLI instead of the
+# Cloudflare dashboard. If you bind KV in the dashboard (Settings > Bindings),
+# you can ignore this file.
+#
+# 1. Create a KV namespace:   npx wrangler kv namespace create COLORS_KV
+# 2. Paste the returned id below.
+# 3. Deploy:                  npx wrangler pages deploy .
+
+name = "color-draw"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "COLORS_KV"
+id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"
+
+# To enable the reset button, also set a RESET_KEY:
+#   npx wrangler pages secret put RESET_KEY
